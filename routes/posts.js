@@ -55,4 +55,35 @@ router.get("/:id", async (req, res) => {
         return res.status(403).json(err);
     }
 });
+
+//特定の投稿にいいねを押す
+router.put("/:id/like", async (req, res) => {
+
+    try {
+
+        const post = await Post.findById(req.params.id);
+
+        //いいねが押されていない場合のみいいね可能
+        if (!post.likes.includes(req.body.userId)) {
+            await post.updateOne({
+                $push: {
+                    likes: req.body.userId,
+                },
+            });
+
+            return res.status(200).json("いいね success");
+            //投稿に既にいいねされていたとき
+        } else {
+            //いいねしているuseridを取り除く
+            await post.updateOne({
+                $pull: {
+                    likes: req.body.userId,
+                },
+            });
+            return res.status(403).json("いいね外しました");
+        }
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+});
 module.exports = router;
