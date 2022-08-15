@@ -78,6 +78,38 @@ router.put("/:id/follow", async (req, res) => {
     } else {
         return res.status(500).json("cannnot follow yourself");
     }
-})
+});
+
+//ユーザーのアンフォロー
+router.put("/:id/unfollow", async (req, res) => {
+    if (req.body.userId !== req.params.id) {
+        try {
+            //user→フォローする対象ユーザー
+            const user = await User.findById(req.params.id);
+            //currentUser→自身
+            const currentUser = await User.findById(req.body.userId);
+            //既にフォローしている場合のみフォローを外せる
+            if (user.followers.includes(req.body.userId)) {
+                await user.updateOne({
+                    $pull: {
+                        followers: req.body.userId,
+                    },
+                });
+                await currentUser.updateOne({
+                    $pull: {
+                        followings: req.params.id,
+                    },
+                });
+                return res.status(200).json("フォローを解除しました。");
+            } else {
+                return res.status(403).json("フォロー解除できません。");
+            }
+        } catch (err) {
+            return res.status(500).json(err);
+        }
+    } else {
+        return res.status(500).json("cannnot unfollow yourself");
+    }
+});
 
 module.exports = router;
