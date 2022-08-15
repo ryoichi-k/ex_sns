@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 //投稿を作成する
 router.post("/", async (req, res) => {
@@ -86,4 +87,24 @@ router.put("/:id/like", async (req, res) => {
         return res.status(500).json(err);
     }
 });
+
+//タイムラインの投稿取得
+router.get("/timeline/all", async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.body.userId);
+        //_idはcurrentUserのuseridのこと
+        const userPosts = await Post.find({ userId: currentUser._id });
+        //自分がフォローしている友達の投稿内容を全て取得する
+        const friendPosts = await Promise.all(
+            currentUser.followings.map((friendId) => {
+                return Post.find({ userId: friendId });
+            })
+        );
+        //mapで一つづつ取り出しているため、...friendPostsと記述
+        return res.status(200).json(userPosts.concat(...friendPosts));
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+});
+
 module.exports = router;
