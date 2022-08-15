@@ -8,7 +8,7 @@ router.put("/:id", async (req, res) => {
     if (req.body.userId === req.params.id || req.body.isAdmin) {
         try {
             const user = await User.findByIdAndUpdate(req.params.id, {
-                //全てのパラメータを指定
+                //$setの意味は「全てのパラメータを指定」
                 $set: req.body,
             });
             res.status(200).json("update success");
