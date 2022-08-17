@@ -4,7 +4,7 @@ const app = express();
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
-const port = 3000;
+const port = 3001;
 const mongoose = require("mongoose");
 require("dotenv").config();
 
